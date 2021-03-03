@@ -5,6 +5,7 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const photoRoutes = require('./src/routes/router');
 
+// Using third-party Middleware - logger & bodyparser
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -22,6 +23,23 @@ app.use((req, res, next) => {
     next();
 })
 
+// Adding route module which handle request
 app.use('/api', photoRoutes);
+
+// Error Handeling
+app.use((req, res, next) => {
+    const error = new Error('Not Found');
+    error.status = 404;
+    next(error);
+    // next(createError(404));
+})
+app.use((error, req, res, next) => {
+    res.status(error.status || 500);
+    res.json({
+        error: {
+            message: error.message
+        }
+    })
+})
 
 module.exports = app;
